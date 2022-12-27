@@ -55,13 +55,19 @@ app.get("/api/users/:id/exercises", async (req, res) => {
 
 app.get("/api/users/:id/logs", async (req, res) => {
   const { id } = req.params;
+  const { from, to: tox, limit } = req.query;
   const user = await UserModel.findById({ _id: id });
   const exercises = await ExerciseModel.find({ username: user.username });
+  let list = exercises;
+  list = from ? list.filter(elem => new Date(elem.date) > new Date(from)) : list;
+  list = tox ? list.filter(elem => new Date(elem.date) < new Date(tox)) : list;
+  list = limit ? list.slice(0, limit) : list;
+
   return res.json({
     _id: user.id,
     username: user.username,
     count: exercises.length,
-    log: exercises,
+    log: list,
   });
 });
 
