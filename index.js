@@ -26,9 +26,10 @@ app.get("/api/users", async (req, res) => {
   return res.json(users);
 });
 
-app.post("/api/users/:_id/exercises", async (req, res) => {
-  const { id, description, duration, date } = req.body;
+app.post("/api/users/:id/exercises", async (req, res) => {
+  const { description, duration, date } = req.body;
   const insertDate = date ? new Date(date) : new Date();
+  const { id } = req.params
   const user = await UserModel.findById({ _id: id });
   const exercise = await ExerciseModel.create({
     username: user.username,
@@ -36,7 +37,13 @@ app.post("/api/users/:_id/exercises", async (req, res) => {
     duration,
     date: insertDate.toDateString(),
   });
-  return res.json(exercise);
+  return res.json({
+    _id: user.id,
+    username: user.username,
+    description: exercise.description,
+    duration: exercise.duration,
+    date: exercise.date
+  });
 });
 
 app.get("/api/users/:id/exercises", async (req, res) => {
@@ -46,7 +53,7 @@ app.get("/api/users/:id/exercises", async (req, res) => {
   return res.json(exercises);
 });
 
-app.get("/api/users/:id/exercises/logs", async (req, res) => {
+app.get("/api/users/:id/logs", async (req, res) => {
   const { id } = req.params;
   const user = await UserModel.findById({ _id: id });
   const exercises = await ExerciseModel.find({ username: user.username });
@@ -54,7 +61,7 @@ app.get("/api/users/:id/exercises/logs", async (req, res) => {
     _id: user.id,
     username: user.username,
     count: exercises.length,
-    logs: exercises,
+    log: exercises,
   });
 });
 
